@@ -1,8 +1,8 @@
 # Part I - Before finishing class
 
-1. La clase responsable es la clase Consumer ya que siempre esta verificando si el tamaño de la cola es mayor a cero y modifica la lista cada vez que puede. y esto provoca un consumo alto de cpu. 
+1. La clase responsable es la clase Consumer ya que siempre esta verificando si el tamaÃ±o de la cola es mayor a cero y modifica la lista cada vez que puede. y esto provoca un consumo alto de cpu. 
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Imagen cpu 1")
+![alt text](https://github.com/diego2097/lab2-arsw/blob/master/1.1.PNG "Imagen cpu 1")
 
 2. Se modificaron las clases Consumer y Producer. Utilizando el metodo wait() para dormir el hilo de Consumer hasta que el hilo Producer lo active utilizando notifiAll() cuando agrega algo a la cola. 
 
