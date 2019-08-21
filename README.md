@@ -8,6 +8,7 @@
 
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/1.2.PNG "Imagen cpu 2")
 
+Como se puede observar en la imagen el consumo de CPU bajo drasticamente. 
 
 - Metodo run() de la clase Consumer: 
 
