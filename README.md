@@ -82,3 +82,16 @@ public class StartProduction {
     }
 }
 ```
+
+
+# Part II
+
+2. Para N jugadores la cantidad de vida total sera N multiplicado por la variable DEFAULT_IMMORTAL_HEALTH.
+
+3. No es cumplida ya que la suma de vida total es mayor a la que deberia haber. por ejemplo: 
+
+![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.3.PNG "Invariant")
+
+La vida por defecto es 10, por lo tanto la suma total deberia ser de 30 pero como se observa esto no se cumple. 
+
+ 
