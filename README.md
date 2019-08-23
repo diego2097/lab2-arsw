@@ -55,3 +55,30 @@ Como se puede observar en la imagen el consumo de CPU bajo drasticamente.
     }
 ```
 
+3. Para que el productor sea mas rapido que el consumidor, creamos muchos hilos productor(100000) los cuales insertan datos en la cola mas rapido de lo que el consumidor puede sacarlos. 
+
+```java
+public class StartProduction {
+
+   // volatile static Queue<Integer> queue;
+    private static int stockLimit=20;
+    public static void main(String[] args) {
+
+        Queue<Integer> queue = new LinkedBlockingQueue<>(stockLimit);
+            
+            for(int i=0;i<100000;i++){
+                new Producer(queue, stockLimit).start();
+            }
+            
+            
+            //let the producer create products for 5 seconds (stock).
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(StartProduction.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            new Consumer(queue).start();
+    }
+}
+```
