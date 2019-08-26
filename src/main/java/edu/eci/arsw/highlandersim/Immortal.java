@@ -5,64 +5,98 @@ import java.util.Random;
 
 public class Immortal extends Thread {
 
-    private ImmortalUpdateReportCallback updateCallback=null;
-    
-    private int health;
-    
+    private ImmortalUpdateReportCallback updateCallback = null;
+
+    private volatile int health;
+
     private int defaultDamageValue;
 
     private final List<Immortal> immortalsPopulation;
 
     private final String name;
 
-    private final Random r = new Random(System.currentTimeMillis());
+    private boolean isPausa;
+    private static Object monitor = ControlFrame.monitor;
 
+    private final Random r = new Random(System.currentTimeMillis());
 
     public Immortal(String name, List<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
         super(name);
-        this.updateCallback=ucb;
+        this.updateCallback = ucb;
         this.name = name;
         this.immortalsPopulation = immortalsPopulation;
         this.health = health;
-        this.defaultDamageValue=defaultDamageValue;
+        this.defaultDamageValue = defaultDamageValue;
+        this.isPausa = false;
     }
 
     public void run() {
 
         while (true) {
-            Immortal im;
+            if (!isPausa) {
+                Immortal im;
 
-            int myIndex = immortalsPopulation.indexOf(this);
+                int myIndex = immortalsPopulation.indexOf(this);
 
-            int nextFighterIndex = r.nextInt(immortalsPopulation.size());
+                int nextFighterIndex = r.nextInt(immortalsPopulation.size());
 
-            //avoid self-fight
-            if (nextFighterIndex == myIndex) {
-                nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
+                //avoid self-fight
+                if (nextFighterIndex == myIndex) {
+                    nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
+                }
+
+                im = immortalsPopulation.get(nextFighterIndex);
+                this.fight(im);
+                //immortalsPopulation.notifyAll();
+
+                try {
+
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+
+                }
+            } else {
+                synchronized (monitor) {
+                    if (isPausa) {
+                        try {
+                            monitor.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
 
-            im = immortalsPopulation.get(nextFighterIndex);
+        }
 
-            this.fight(im);
+    }
 
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void fight(Immortal i2) {
+        int thisHash = System.identityHashCode(this);
+        int i2Hash = System.identityHashCode(i2);
+
+        if (thisHash < i2Hash) {
+            synchronized (this) {
+                synchronized (i2) {
+                    this.actualizarHealth(i2);
+                }
+            }
+        } else if (thisHash > i2Hash) {
+            synchronized (i2) {
+                synchronized (this) {
+                    this.actualizarHealth(i2);
+                }
             }
         }
     }
 
-    public void fight(Immortal i2) {
-
+    private void actualizarHealth(Immortal i2) {
         if (i2.getHealth() > 0) {
             i2.changeHealth(i2.getHealth() - defaultDamageValue);
             this.health += defaultDamageValue;
-            updateCallback.processReport("Fight: " + this + " vs " + i2+"\n");
-        } else {
-            updateCallback.processReport(this + " says:" + i2 + " is already dead!\n");
+            updateCallback.processReport("Fight: " + this + " vs " + i2 + "\n");
         }
-
     }
 
     public void changeHealth(int v) {
@@ -77,6 +111,11 @@ public class Immortal extends Thread {
     public String toString() {
 
         return name + "[" + health + "]";
+    }
+
+    public void setIspausa(boolean b) {
+        isPausa = b;
+
     }
 
 }
