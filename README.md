@@ -163,6 +163,24 @@ reanudar:
 ```
 5.  No es cumplida ya que la suma de vida total es mayor a la que deberia haber. 
 6.   region critica: 
+region critica en la clase Inmortal metodo run: : 
+```java
+   this.fight(im);
+```
+```java
+   public void fight(Immortal i2) {
+
+        if (i2.getHealth() > 0) {
+            i2.changeHealth(i2.getHealth() - defaultDamageValue);
+            this.health += defaultDamageValue;
+            updateCallback.processReport("Fight: " + this + " vs " + i2+"\n");
+        } else {
+            updateCallback.processReport(this + " says:" + i2 + " is already dead!\n");
+        }
+
+    }
+```
+solucionando con locks’ simultaneously: 
 ```java
 private void actualizarHealth(Immortal i2) {
         if (i2.getHealth() > 0) {
