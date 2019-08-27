@@ -231,4 +231,36 @@ caso 100000:
 
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.93.PNG "Imagen caso 100")
 
-10. para evitar que los inmortales vivos tengan peleas con los muertos  se creo en la clase Inmortal un atributo llamado "live"  de tipo boolea,  si el inmortal  llegara a morir se acaba la ejecucion de dicho hilo. 
+10.2:  para evitar que los inmortales vivos tengan peleas con los muertos  se creo en la clase Inmortal un atributo llamado "live"  de tipo boolea,  si el inmortal  llegara a morir se acaba la ejecucion de dicho hilo. 
+En el metodo Run de cada Inmortal: 
+
+```java
+public void run() {
+
+        while (!stop && live) {
+        ...
+        }
+   }
+public void changeHealth(int v) {
+        health = v;
+        if (v <= 0) {
+            this.setLive(false);
+            //immortalsPopulation.remove(this);
+
+        }
+        health = v;
+    }
+```
+11. se creo un atributo en la clase Inmortal "stop", que finalizara la ejecucion el hilo: 
+```java
+        btnStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                synchronized (monitor) {
+                    for (Immortal im : immortals) {
+                        im.setStop(true);
+                    }
+                    monitor.notifyAll();
+                }
+            }
+        });
+```
