@@ -218,10 +218,15 @@ private void actualizarHealth(Immortal i2) {
 ```
 9. 
 caso 100: 
+
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.9.PNG "Imagen caso 100")
+
 caso 1000: 
+
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.92.PNG "Imagen caso 100")
+
 caso 100000: 
+
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.93.PNG "Imagen caso 100")
 
 10. para evitar que los inmortales vivos tengan peleas con los muertos  se creo en la clase Inmortal un atributo llamado "live"  de tipo boolea,  si el inmortal  llegara a morir se acaba la ejecucion de dicho hilo. 
