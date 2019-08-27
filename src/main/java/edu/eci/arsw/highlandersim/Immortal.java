@@ -16,10 +16,11 @@ public class Immortal extends Thread {
     private final String name;
 
     private boolean isPausa;
+    private boolean live;
     private static Object monitor = ControlFrame.monitor;
-
+    private boolean turno;
     private final Random r = new Random(System.currentTimeMillis());
-
+    private boolean stop;
     public Immortal(String name, List<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
         super(name);
         this.updateCallback = ucb;
@@ -28,12 +29,15 @@ public class Immortal extends Thread {
         this.health = health;
         this.defaultDamageValue = defaultDamageValue;
         this.isPausa = false;
+        this.live = true;
+        turno = true;
+        stop=false;
     }
 
     public void run() {
 
-        while (true) {
-            if (!isPausa) {
+        while (!stop) {
+            if (!isPausa && live) {
                 Immortal im;
 
                 int myIndex = immortalsPopulation.indexOf(this);
@@ -44,11 +48,37 @@ public class Immortal extends Thread {
                 if (nextFighterIndex == myIndex) {
                     nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
                 }
-
                 im = immortalsPopulation.get(nextFighterIndex);
-                this.fight(im);
-                //immortalsPopulation.notifyAll();
+                int NInmortals = 0;
+               
+                    for (Immortal imo : ControlFrame.immortals) {
+                        if (imo.getHealth() > 0) {
+                            NInmortals++;
+                        }
+                    }
+                 
 
+                if (NInmortals == 2) {
+                    if (turno) {
+                        this.fight(im);
+                        im.setTurno(true);
+                        this.setTurno(false);
+                        try {
+                            this.currentThread().sleep(100);
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    } else {
+                        this.setTurno(true);
+                        im.setTurno(false);
+                        
+                    }
+                } else {
+                    this.fight(im);
+                }
+
+                //immortalsPopulation.notifyAll();
                 try {
 
                     Thread.sleep(1);
@@ -72,20 +102,32 @@ public class Immortal extends Thread {
 
     }
 
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
+    public void setTurno(boolean turno) {
+        this.turno = turno;
+    }
+
     public void fight(Immortal i2) {
         int thisHash = System.identityHashCode(this);
         int i2Hash = System.identityHashCode(i2);
-
         if (thisHash < i2Hash) {
             synchronized (this) {
                 synchronized (i2) {
-                    this.actualizarHealth(i2);
+                    if (i2.getHealth() > 0 && this.getHealth() > 0) {
+                        this.actualizarHealth(i2);
+                    }
+
                 }
             }
         } else if (thisHash > i2Hash) {
             synchronized (i2) {
                 synchronized (this) {
-                    this.actualizarHealth(i2);
+                    if (i2.getHealth() > 0 && this.getHealth() > 0) {
+                        this.actualizarHealth(i2);
+                    }
                 }
             }
         }
@@ -96,10 +138,19 @@ public class Immortal extends Thread {
             i2.changeHealth(i2.getHealth() - defaultDamageValue);
             this.health += defaultDamageValue;
             updateCallback.processReport("Fight: " + this + " vs " + i2 + "\n");
+        } else {
+            i2.setLive(false);
+
         }
     }
 
     public void changeHealth(int v) {
+        health = v;
+        if (v <= 0) {
+            this.setLive(false);
+            //immortalsPopulation.remove(this);
+
+        }
         health = v;
     }
 
@@ -116,6 +167,10 @@ public class Immortal extends Thread {
     public void setIspausa(boolean b) {
         isPausa = b;
 
+    }
+
+    public void setLive(boolean live) {
+        this.live = live;
     }
 
 }

@@ -26,12 +26,12 @@ import javax.swing.JScrollBar;
 
 public class ControlFrame extends JFrame {
 
-    private static final int DEFAULT_IMMORTAL_HEALTH = 1;
-    private static final int DEFAULT_DAMAGE_VALUE = 1;
+    private static final int DEFAULT_IMMORTAL_HEALTH =100;
+    private static final int DEFAULT_DAMAGE_VALUE = 5;
 
     private JPanel contentPane;
 
-    private volatile static List<Immortal> immortals;
+    public  static List<Immortal> immortals;
     public static Object monitor = new Object();
     private JTextArea output;
     private JLabel statisticsLabel;
@@ -89,7 +89,7 @@ public class ControlFrame extends JFrame {
         JButton btnPauseAndCheck = new JButton("Pause and check");
         btnPauseAndCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                synchronized (immortals) {
+               
 
                     for (Immortal im : immortals) {
                         im.setIspausa(true);
@@ -100,7 +100,7 @@ public class ControlFrame extends JFrame {
                     }
                     statisticsLabel.setText("<html>" + immortals.toString() + "<br>Health sum:" + sum);
 
-                }
+                
 
             }
 
@@ -124,13 +124,26 @@ public class ControlFrame extends JFrame {
 
         JLabel lblNumOfImmortals = new JLabel("num. of immortals:");
         toolBar.add(lblNumOfImmortals);
-
+        
         numOfImmortals = new JTextField();
         numOfImmortals.setText("3");
         toolBar.add(numOfImmortals);
         numOfImmortals.setColumns(10);
 
         JButton btnStop = new JButton("STOP");
+        
+        btnStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                synchronized (monitor) {
+                    for (Immortal im : immortals) {
+                        im.setStop(true);
+                    }
+                    monitor.notifyAll();
+                }
+            }
+        });
+        
+        
         btnStop.setForeground(Color.RED);
         toolBar.add(btnStop);
 
