@@ -217,6 +217,8 @@ private void actualizarHealth(Immortal i2) {
  
 ```
 9. 
+private static final int DEFAULT_IMMORTAL_HEALTH =100;
+private static final int DEFAULT_DAMAGE_VALUE = 5;
 caso 100: 
 
 ![alt text](https://github.com/diego2097/lab2-arsw/blob/master/2.9.PNG "Imagen caso 100")
