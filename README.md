@@ -1,4 +1,24 @@
-﻿# Part I - Before finishing class
+## Empezando
+se debe de clonar el proyecto, para esto utilizaremos el comando git clone. ubíquese la carpeta a guardar el proyecto y escriba el siguiente comando en la terminal:
+ 
+ ### git clone https://github.com/diego2097/lab1-arsw
+una vez clonado, ubicarse en la carpeta del proyecto el cual requiera ejecutar. al ingresar a BBP_formula podra ejecutarlo de forma inmediata mediante el comando mvn package, para el caso de Dogs race case este esta dividido en dos partes. se debera acceder a la parte que se quiera ejecutar y realizar el comando mvn package. 
+## Prerrequisitos
+Se debe tener instalados los siguientes programas en nuestro sistema operativo: 
+- Maven 
+- Git
+- Java
+## Construido en
+- Maven: una herramienta de software para la gestión y construcción de proyectos java
+
+## Autor  
+- Diego Alejandro Corredor Tolosa https://github.com/diego2097
+- Luis Fernando Pizza Gamba https://github.com/luis572
+
+## Licencia 
+- GNU General Public License v3.0
+
+# Part I - Before finishing class
 
 1. La clase responsable es la clase Consumer ya que siempre esta verificando si el tamaño de la cola es mayor a cero y modifica la lista cada vez que puede. y esto provoca un consumo alto de cpu. 
 
@@ -94,4 +114,87 @@ public class StartProduction {
 
 La vida por defecto es 10, por lo tanto la suma total deberia ser de 30 pero como se observa esto no se cumple. 
 
+4.  Pausar: 
+```java
+JButton btnPauseAndCheck = new JButton("Pause and check");
+        btnPauseAndCheck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                    for (Immortal im : immortals) {
+                        im.setIspausa(true);
+                    }
+                    int sum = 0;
+                    for (Immortal im : immortals) {
+                        sum += im.getHealth();
+                    }
+                    statisticsLabel.setText("<html>" + immortals.toString() + "<br>Health sum:" + sum);
+            }
+
+        });
  
+```
+dentro de la clase Inmortal: 
+```java
+private void pausar(){
+        synchronized (monitor) {
+                    if (isPausa) {
+                        try {
+                            monitor.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+    }
+    
+```
+reanudar: 
+
+```java
+  btnResume.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                synchronized (monitor) {
+                    for (Immortal im : immortals) {
+                        im.setIspausa(false);
+                    }
+                    monitor.notifyAll();
+                }
+            }
+        });
+```
+5.  No es cumplida ya que la suma de vida total es mayor a la que deberia haber. 
+6.   region critica: 
+```java
+private void actualizarHealth(Immortal i2) {
+        if (i2.getHealth() > 0) {
+            i2.changeHealth(i2.getHealth() - defaultDamageValue);
+            this.health += defaultDamageValue;
+            updateCallback.processReport("Fight: " + this + " vs " + i2 + "\n");
+        } else {
+            i2.setLive(false);
+
+        }
+    }
+ public void fight(Immortal i2) {
+        int thisHash = System.identityHashCode(this);
+        int i2Hash = System.identityHashCode(i2);
+        if (thisHash < i2Hash) {
+            synchronized (this) {
+                synchronized (i2) {
+                    if (i2.getHealth() > 0 && this.getHealth() > 0) {
+                        this.actualizarHealth(i2);
+                    }
+
+                }
+            }
+        } else if (thisHash > i2Hash) {
+            synchronized (i2) {
+                synchronized (this) {
+                    if (i2.getHealth() > 0 && this.getHealth() > 0) {
+                        this.actualizarHealth(i2);
+                    }
+                }
+            }
+        }
+    }
+ 
+```
