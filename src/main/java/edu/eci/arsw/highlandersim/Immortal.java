@@ -18,7 +18,7 @@ public class Immortal extends Thread {
     private boolean isPausa;
     private boolean live;
     private static Object monitor = ControlFrame.monitor;
-    private boolean turno;
+    private  volatile boolean turno;
     private final Random r = new Random(System.currentTimeMillis());
     private boolean stop;
     public Immortal(String name, List<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
@@ -36,8 +36,8 @@ public class Immortal extends Thread {
 
     public void run() {
 
-        while (!stop) {
-            if (!isPausa && live) {
+        while (!stop && live) {
+            if (!isPausa ) {
                 Immortal im;
 
                 int myIndex = immortalsPopulation.indexOf(this);
@@ -48,7 +48,7 @@ public class Immortal extends Thread {
                 if (nextFighterIndex == myIndex) {
                     nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
                 }
-                im = immortalsPopulation.get(nextFighterIndex);
+                
                 int NInmortals = 0;
                
                     for (Immortal imo : ControlFrame.immortals) {
@@ -56,8 +56,11 @@ public class Immortal extends Thread {
                             NInmortals++;
                         }
                     }
-                 
-
+                if(NInmortals!=1){
+                     im = immortalsPopulation.get(nextFighterIndex);
+                }else{
+                    im = immortalsPopulation.get(0);
+                }
                 if (NInmortals == 2) {
                     if (turno) {
                         this.fight(im);
@@ -72,7 +75,6 @@ public class Immortal extends Thread {
                     } else {
                         this.setTurno(true);
                         im.setTurno(false);
-                        
                     }
                 } else {
                     this.fight(im);
@@ -87,7 +89,14 @@ public class Immortal extends Thread {
 
                 }
             } else {
-                synchronized (monitor) {
+                pausar();
+            }
+
+        }
+
+    }
+    private void pausar(){
+        synchronized (monitor) {
                     if (isPausa) {
                         try {
                             monitor.wait();
@@ -96,10 +105,10 @@ public class Immortal extends Thread {
                         }
                     }
                 }
-            }
+    }
 
-        }
-
+    public boolean isTurno() {
+        return turno;
     }
 
     public void setStop(boolean stop) {
